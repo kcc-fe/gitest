@@ -1,12 +1,3 @@
----
-name: 이슈 템플릿
-about: Issue Template
-title: ''
-labels: ''
-assignees: ''
-
----
-
 ## 설명
 > 설명을 작성해주세요.
 

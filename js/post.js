@@ -1,4 +1,4 @@
-import { savePost } from '../api/post.js';
+import { savePost, getPostList } from '../api/post.js';
 
 export default function Post() {
   this.posts = [];
@@ -27,22 +27,39 @@ export default function Post() {
       return;
     }
 
-    document
-      .querySelector('#post-list')
-      .insertAdjacentHTML('afterbegin', this.postItemTemplate(data));
-
-    // 로컬 스토리지 저장
-    savePost(data);
+    // 상태값 저장
+    this.posts.unshift(data);
+    savePost(this.posts);
 
     // 빈 값으로 초기화
     titleEl.value = '';
     usernameEl.value = '';
     contentEl.value = '';
+
+    this.render();
   };
 
   // 게시판 상태 초기화
   this.initData = () => {
-    // store불러오기
+    this.posts = getPostList() || [];
+    this.render();
+  };
+
+  // 게시글 목록 렌더링
+  this.render = () => {
+    if (this.posts.length === 0) {
+      return;
+    }
+    const postEls = this.posts
+      .map(({ title, username, content }) => {
+        return `<li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="w-10 fw-bold">${title}</div>
+                  <div style="width: 50%">${content}</div>
+                  <div>${username}</div>
+              </li>`;
+      })
+      .join('');
+    document.querySelector('#post-list').innerHTML = postEls;
   };
 
   // 게시판 이벤트 초기화
@@ -60,16 +77,5 @@ export default function Post() {
       return false;
     }
     return true;
-  };
-
-  // 게시글 항목 생성
-  this.postItemTemplate = ({ title, username, content }) => {
-    return `<li
-  class="list-group-item d-flex justify-content-between align-items-start"
-  >
-  <div class="w-10 fw-bold">${title}</div>
-  <div style="width: 50%">${content}</div>
-  <div>${username}</div>
-  </li>`;
   };
 }

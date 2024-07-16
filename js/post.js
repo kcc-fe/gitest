@@ -11,10 +11,14 @@ export default function Post() {
   this.addPost = (e) => {
     e.preventDefault();
 
+    const titleEl = document.querySelector('#input-title');
+    const usernameEl = document.querySelector('#input-username');
+    const contentEl = document.querySelector('#input-content');
+
     const data = {
-      title: document.querySelector('#input-title').value,
-      username: document.querySelector('#input-username').value,
-      content: document.querySelector('#input-content').value,
+      title: titleEl.value,
+      username: usernameEl.value,
+      content: contentEl.value,
     };
 
     // 폼 유효성 검사
@@ -29,6 +33,11 @@ export default function Post() {
 
     // 로컬 스토리지 저장
     savePost(data);
+
+    // 빈 값으로 초기화
+    titleEl.value = '';
+    usernameEl.value = '';
+    contentEl.value = '';
   };
 
   // 게시판 상태 초기화

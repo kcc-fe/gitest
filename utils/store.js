@@ -1,9 +1,9 @@
 const store = {
   getLocalStorage: () => {
-    return JSON.parse(localStorage.getItem('posts'));
+    return JSON.parse(localStorage.getItem('data'));
   },
-  setLocalStorage: (post) => {
-    localStorage.setItem('posts', JSON.stringify(post));
+  setLocalStorage: (data) => {
+    localStorage.setItem('data', JSON.stringify(data));
   },
 };
 

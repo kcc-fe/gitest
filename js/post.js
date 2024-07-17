@@ -77,9 +77,9 @@ export default function Post() {
     
 
     const id = parseInt(listItem.getAttribute('data-id'),10);
-    console.log(id)
+    
     const post = this.posts.find(p => p.idx === id);
-    console.log(post)
+    
 
     const titleEl = document.querySelector('#post-title');
     const usernameEl = document.querySelector('#post-username');

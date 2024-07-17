@@ -3,6 +3,7 @@ import { savePost, getPostList } from '../api/post.js';
 export default function Post() {
   this.posts = [];
   this.nextId = 0; // 시퀀스번호
+  this.postIdx;
 
   this.init = () => {
     this.initData();
@@ -77,7 +78,8 @@ export default function Post() {
     const id = parseInt(listItem.getAttribute('data-id'), 10);
 
     const post = this.posts.find((p) => p.idx === id);
-    console.log(post);
+    this.postIdx = this.posts.findIndex((p) => p.idx === id);
+    console.log(this.postIdx);
 
     const noEl = document.querySelector('#detail-post-no');
     const titleEl = document.querySelector('#post-title');
@@ -86,7 +88,7 @@ export default function Post() {
 
     noEl.className = 'd-inline';
     noEl.setAttribute('data-id', id);
-    noEl.innerText = `${post.idx}번`;
+    noEl.innerText = `${this.postIdx}번`;
     titleEl.value = post.title;
     usernameEl.value = post.username;
     contentEl.value = post.content;
@@ -110,7 +112,9 @@ export default function Post() {
     const usernameEl = document.querySelector('#post-username');
     const contentEl = document.querySelector('#post-content');
 
-    const postIdx = noEl.getAttribute('data-id');
+    // const postIdx = noEl.getAttribute('data-id');
+    const id = this.posts.findIndex((p) => p.idx === parseInt(this.postIdx));
+    console.log('id:' + id);
 
     // if(한 번 클릭한 애인지?)
     // disabled = true : 수정 가능하게 변경
@@ -121,25 +125,27 @@ export default function Post() {
       usernameEl.disabled = false;
       contentEl.disabled = false;
     } else {
-      // 폼 유효성 검사
-      // if (
-      //   !this.isPostFormValidate(
-      //     titleEl.value,
-      //     usernameEl.value,
-      //     contentEl.value
-      //   )
-      // ) {
-      //   alert('모든 항목을 입력해주세요.');
-      //   return;
-      // }
+      //폼 유효성 검사
+      if (
+        !this.isPostFormValidate({
+          title: titleEl.value,
+          username: usernameEl.value,
+          content: contentEl.value,
+        })
+      ) {
+        alert('모든 항목을 입력해주세요.');
+        return;
+      }
 
       // 게시글 정보 갱신하기
-      this.posts[postIdx] = {
-        idx: postIdx,
+      this.posts[id] = {
+        idx: this.postIdx,
         title: titleEl.value,
         username: usernameEl.value,
         content: contentEl.value,
       };
+
+      console.log(this.posts[id].idx);
 
       // 입력값 활성 상태 true로 변경하기
       titleEl.disabled = true;
@@ -149,7 +155,7 @@ export default function Post() {
       // 게시글 목록 업데이트 해줘야함
       savePost(this.posts);
       this.render();
-      console.log(this.posts[postIdx]);
+      console.log(this.posts[this.postIdx]);
 
       alert('수정 완료되었습니다.');
     }

@@ -62,9 +62,36 @@ export default function Post() {
     document.querySelector('#post-list').innerHTML = postEls;
   };
 
+  /**
+   * 1. 배열 posts 인덱스로 제어
+   * 2. 리스트의 내용을 인덱스에 맞는걸 post-detail 요소에 넣어줌
+   */
+  this.detail = ()=>{
+    
+    document.querySelectorAll('#post-list .list-group-item').forEach((item, index) => {
+      item.addEventListener('click', () => {
+        // 1. 배열 post 접근
+        // 클릭된 항목의 데이터 가져오기
+        const post = this.posts[index];
+  
+        // 폼 입력 필드 선택
+        const titleEl = document.querySelector('#post-title');
+        const usernameEl = document.querySelector('#post-username');
+        const contentEl = document.querySelector('#post-content');
+  
+        // 입력 필드에 데이터 설정
+        titleEl.value = post.title;
+        usernameEl.value = post.username;
+        contentEl.value = post.content;
+      });
+    });
+
+  }
+
   // 게시판 이벤트 초기화
   this.initEventListeners = () => {
     document.querySelector('#add-btn').addEventListener('click', this.addPost);
+    document.querySelector('#post-list').addEventListener('click', this.detail)
   };
 
   // 유효성 판별

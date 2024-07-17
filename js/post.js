@@ -75,7 +75,7 @@ export default function Post() {
   this.getDetailPost = (event) => {
     const listItem = event.target.closest('.list-group-item');
 
-    const id = parseInt(listItem.getAttribute('data-id'), 10);
+    const id = parseInt(listItem.getAttribute('data-id'), 10); //idx
 
     const post = this.posts.find((p) => p.idx === id);
     this.postIdx = this.posts.findIndex((p) => p.idx === id);
@@ -87,7 +87,7 @@ export default function Post() {
 
     noEl.className = 'd-inline';
     noEl.setAttribute('data-id', id);
-    noEl.innerText = `${this.postIdx}번`;
+    noEl.innerText = `${post.idx}번`;
     titleEl.value = post.title;
     usernameEl.value = post.username;
     contentEl.value = post.content;
@@ -155,6 +155,28 @@ export default function Post() {
     }
   };
 
+  this.deletePost = (e) => {
+    e.preventDefault();
+
+    if (confirm('정말 삭제하시겠습니뀨?')) {
+      const postIdx = parseInt(
+        document.querySelector('#detail-post-no').getAttribute('data-id')
+      );
+
+      const copiedPosts = [...this.posts];
+
+      const selectedPostIdx = copiedPosts.findIndex(
+        (post) => post.idx === postIdx
+      );
+      copiedPosts.splice(selectedPostIdx, 1);
+
+      savePost(copiedPosts);
+      this.initData();
+    } else {
+      return;
+    }
+  };
+
   // 게시판 이벤트 초기화
   this.initEventListeners = () => {
     document.querySelector('#add-btn').addEventListener('click', this.addPost);
@@ -164,6 +186,10 @@ export default function Post() {
     document
       .querySelector('#edit-btn')
       .addEventListener('click', this.updatePost);
+
+    document
+      .querySelector('#delete-btn')
+      .addEventListener('click', this.deletePost);
   };
 
   // 유효성 판별

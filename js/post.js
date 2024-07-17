@@ -2,6 +2,7 @@ import { savePost, getPostList } from '../api/post.js';
 
 export default function Post() {
   this.posts = [];
+  this.nextId = 0;// 시퀀스번호
 
   this.init = () => {
     this.initData();
@@ -15,7 +16,10 @@ export default function Post() {
     const usernameEl = document.querySelector('#input-username');
     const contentEl = document.querySelector('#input-content');
 
+    const idx = this.posts.length
+
     const data = {
+      idx : nextId++,
       title: titleEl.value,
       username: usernameEl.value,
       content: contentEl.value,
@@ -51,8 +55,9 @@ export default function Post() {
       return;
     }
     const postEls = this.posts
-      .map(({ title, username, content }) => {
-        return `<li class="list-group-item d-flex justify-content-between align-items-start">
+      .map(({idx, title, username, content }) => {
+        return `<li class="list-group-item d-flex justify-content-between align-items-start"  data-id="${idx}">
+                  <div class="w-10 fw-bold">${idx}</div>
                   <div class="w-10 fw-bold">${title}</div>
                   <div style="width: 50%">${content}</div>
                   <div>${username}</div>
@@ -66,32 +71,37 @@ export default function Post() {
    * 1. 배열 posts 인덱스로 제어
    * 2. 리스트의 내용을 인덱스에 맞는걸 post-detail 요소에 넣어줌
    */
-  this.detail = ()=>{
+  this.getDetailPost = (event) => {
     
-    document.querySelectorAll('#post-list .list-group-item').forEach((item, index) => {
-      item.addEventListener('click', () => {
-        // 1. 배열 post 접근
-        // 클릭된 항목의 데이터 가져오기
-        const post = this.posts[index];
-  
-        // 폼 입력 필드 선택
-        const titleEl = document.querySelector('#post-title');
-        const usernameEl = document.querySelector('#post-username');
-        const contentEl = document.querySelector('#post-content');
-  
-        // 입력 필드에 데이터 설정
-        titleEl.value = post.title;
-        usernameEl.value = post.username;
-        contentEl.value = post.content;
-      });
-    });
+    const listItem = event.target.closest('.list-group-item');
+    
 
-  }
+    const id = parseInt(listItem.getAttribute('data-id'),10);
+    console.log(id)
+    const post = this.posts.find(p => p.idx === id);
+    console.log(post)
+
+    const titleEl = document.querySelector('#post-title');
+    const usernameEl = document.querySelector('#post-username');
+    const contentEl = document.querySelector('#post-content');
+
+    titleEl.value = post.title;
+    usernameEl.value = post.username;
+    contentEl.value = post.content;
+
+    titleEl.disabled = true;
+    usernameEl.disabled = true;
+    contentEl.disabled = true;
+    
+  };
+
+
+
 
   // 게시판 이벤트 초기화
   this.initEventListeners = () => {
     document.querySelector('#add-btn').addEventListener('click', this.addPost);
-    document.querySelector('#post-list').addEventListener('click', this.detail)
+    document.querySelector('#post-list').addEventListener('click', this.getDetailPost)
   };
 
   // 유효성 판별

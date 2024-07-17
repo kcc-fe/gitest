@@ -77,6 +77,7 @@ export default function Post() {
     const id = parseInt(listItem.getAttribute('data-id'), 10);
 
     const post = this.posts.find((p) => p.idx === id);
+    console.log(post);
 
     const noEl = document.querySelector('#detail-post-no');
     const titleEl = document.querySelector('#post-title');
@@ -84,7 +85,7 @@ export default function Post() {
     const contentEl = document.querySelector('#post-content');
 
     noEl.className = 'd-inline';
-    noEl.setAttribute('data-id', post.idx);
+    noEl.setAttribute('data-id', id);
     noEl.innerText = `${post.idx}번`;
     titleEl.value = post.title;
     usernameEl.value = post.username;

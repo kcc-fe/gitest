@@ -3,6 +3,7 @@ import { savePost, getPostList } from '../api/post.js';
 export default function Post() {
   this.posts = [];
   this.nextId = 0; // 시퀀스번호
+  this.postIdx;
 
   this.init = () => {
     this.initData();
@@ -74,9 +75,10 @@ export default function Post() {
   this.getDetailPost = (event) => {
     const listItem = event.target.closest('.list-group-item');
 
-    const id = parseInt(listItem.getAttribute('data-id'), 10);
+    const id = parseInt(listItem.getAttribute('data-id'), 10); //idx
 
     const post = this.posts.find((p) => p.idx === id);
+    this.postIdx = this.posts.findIndex((p) => p.idx === id);
 
     const noEl = document.querySelector('#detail-post-no');
     const titleEl = document.querySelector('#post-title');
@@ -84,6 +86,7 @@ export default function Post() {
     const contentEl = document.querySelector('#post-content');
 
     noEl.className = 'd-inline';
+    noEl.setAttribute('data-id', id);
     noEl.innerText = `${post.idx}번`;
     titleEl.value = post.title;
     usernameEl.value = post.username;
@@ -96,16 +99,82 @@ export default function Post() {
 
   /**
    * 게시글 수정
-   * 1. 게시글 정보 갱신
-   * 2. 입력값 활성 상태 변경
+   * 1. 입력값 활성 상태 변경
+   * 2. 게시글 정보 갱신
+   * 3. 입력값 활성 상태 변경
    */
-  this.updatePost = (event) => {
-    // 게시글 정보 갱신하기
+  this.updatePost = (e) => {
+    e.preventDefault();
 
     const noEl = document.querySelector('#detail-post-no');
-    // const postIdx = noEl.getAttribute
+    const titleEl = document.querySelector('#post-title');
+    const usernameEl = document.querySelector('#post-username');
+    const contentEl = document.querySelector('#post-content');
 
-    // 입력값 활성 상태 false로 변경하기
+    const id = this.posts.findIndex((p) => p.idx === parseInt(this.postIdx));
+
+    // if(한 번 클릭한 애인지?)
+    // disabled = true : 수정 가능하게 변경
+    // disabled = false : 입력된 값 수정
+    if (titleEl.disabled) {
+      // 입력값 활성 상태 false로 변경하기
+      titleEl.disabled = false;
+      usernameEl.disabled = false;
+      contentEl.disabled = false;
+    } else {
+      //폼 유효성 검사
+      if (
+        !this.isPostFormValidate({
+          title: titleEl.value,
+          username: usernameEl.value,
+          content: contentEl.value,
+        })
+      ) {
+        alert('모든 항목을 입력해주세요.');
+        return;
+      }
+
+      // 게시글 정보 갱신하기
+      this.posts[id] = {
+        idx: this.postIdx,
+        title: titleEl.value,
+        username: usernameEl.value,
+        content: contentEl.value,
+      };
+
+      // 입력값 활성 상태 true로 변경하기
+      titleEl.disabled = true;
+      usernameEl.disabled = true;
+      contentEl.disabled = true;
+
+      // 게시글 목록 업데이트 해줘야함
+      savePost(this.posts);
+      this.render();
+
+      alert('수정 완료되었습니다.');
+    }
+  };
+
+  this.deletePost = (e) => {
+    e.preventDefault();
+
+    if (confirm('정말 삭제하시겠습니뀨?')) {
+      const postIdx = parseInt(
+        document.querySelector('#detail-post-no').getAttribute('data-id')
+      );
+
+      const copiedPosts = [...this.posts];
+
+      const selectedPostIdx = copiedPosts.findIndex(
+        (post) => post.idx === postIdx
+      );
+      copiedPosts.splice(selectedPostIdx, 1);
+
+      savePost(copiedPosts);
+      this.initData();
+    } else {
+      return;
+    }
   };
 
   // 게시판 이벤트 초기화
@@ -117,6 +186,10 @@ export default function Post() {
     document
       .querySelector('#edit-btn')
       .addEventListener('click', this.updatePost);
+
+    document
+      .querySelector('#delete-btn')
+      .addEventListener('click', this.deletePost);
   };
 
   // 유효성 판별

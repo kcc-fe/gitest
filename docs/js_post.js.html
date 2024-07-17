@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>js/post.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#addPost">addPost</a></li><li><a href="global.html#deletePost">deletePost</a></li><li><a href="global.html#getDetailPost">getDetailPost</a></li><li><a href="global.html#getPostList">getPostList</a></li><li><a href="global.html#initData">initData</a></li><li><a href="global.html#initEventListeners">initEventListeners</a></li><li><a href="global.html#isPostFormValidate">isPostFormValidate</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#savePost">savePost</a></li><li><a href="global.html#updatePost">updatePost</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">js/post.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { savePost, getPostList } from '../api/post.js';
+
+export default function Post() {
+  this.posts = [];
+  this.nextId = 0; // 시퀀스번호
+  this.postIdx;
+
+  this.init = () => {
+    this.initData();
+    this.initEventListeners();
+  };
+
+  /**
+   * 게시글을 추가하는 addPost() 함수
+   * @param {Event} e - 이벤트 객체
+   */
+  this.addPost = (e) => {
+    e.preventDefault();
+
+    const titleEl = document.querySelector('#input-title');
+    const usernameEl = document.querySelector('#input-username');
+    const contentEl = document.querySelector('#input-content');
+
+    const idx = this.posts.length;
+
+    const data = {
+      idx: this.nextId++,
+      title: titleEl.value,
+      username: usernameEl.value,
+      content: contentEl.value,
+    };
+
+    if (!this.isPostFormValidate(data)) {
+      alert('모든 항목을 입력해주세요.');
+      return;
+    }
+
+    this.posts.unshift(data);
+    savePost(this.posts);
+
+    titleEl.value = '';
+    usernameEl.value = '';
+    contentEl.value = '';
+
+    this.render();
+  };
+
+  /**
+   * 게시글 데이터를 저장소로부터 가져와 렌더링해주는 initData() 함수
+   */
+  this.initData = () => {
+    this.posts = getPostList() || [];
+    this.render();
+  };
+
+  /**
+   * 게시글 목록을 화면에 출력하는 render() 함수
+   */
+  this.render = () => {
+    if (this.posts.length === 0) {
+      return;
+    }
+    const postEls = this.posts
+      .map(({ idx, title, username, content }) => {
+        return `&lt;li class="list-group-item d-flex justify-content-between align-items-start"  data-id="${idx}">
+                  &lt;div class="w-10 fw-bold">${idx}&lt;/div>
+                  &lt;div class="w-10 fw-bold">${title}&lt;/div>
+                  &lt;div style="width: 50%">${content}&lt;/div>
+                  &lt;div>${username}&lt;/div>
+              &lt;/li>`;
+      })
+      .join('');
+    document.querySelector('#post-list').innerHTML = postEls;
+  };
+
+  /**
+   * 게시글 상세 정보를 보여주는 getDetailPost() 함수
+   * @param {Event} e - 이벤트 객체
+   */
+  this.getDetailPost = (e) => {
+    const listItem = e.target.closest('.list-group-item');
+
+    const id = parseInt(listItem.getAttribute('data-id'), 10); //idx
+
+    const post = this.posts.find((p) => p.idx === id);
+    this.postIdx = this.posts.findIndex((p) => p.idx === id);
+
+    const noEl = document.querySelector('#detail-post-no');
+    const titleEl = document.querySelector('#post-title');
+    const usernameEl = document.querySelector('#post-username');
+    const contentEl = document.querySelector('#post-content');
+
+    noEl.className = 'd-inline';
+    noEl.setAttribute('data-id', id);
+    noEl.innerText = `${post.idx}번`;
+    titleEl.value = post.title;
+    usernameEl.value = post.username;
+    contentEl.value = post.content;
+
+    titleEl.disabled = true;
+    usernameEl.disabled = true;
+    contentEl.disabled = true;
+  };
+
+  /**
+   * 게시글 상세 정보를 수정하는 updatePost() 함수
+   * @param {Event} e - 이벤트 객체
+   */
+  this.updatePost = (e) => {
+    e.preventDefault();
+
+    const noEl = document.querySelector('#detail-post-no');
+    const titleEl = document.querySelector('#post-title');
+    const usernameEl = document.querySelector('#post-username');
+    const contentEl = document.querySelector('#post-content');
+
+    const id = this.posts.findIndex((p) => p.idx === parseInt(this.postIdx));
+
+    // disabled = true : 수정 가능하게 변경
+    // disabled = false : 입력된 값 수정
+    if (titleEl.disabled) {
+      titleEl.disabled = false;
+      usernameEl.disabled = false;
+      contentEl.disabled = false;
+    } else {
+      if (
+        !this.isPostFormValidate({
+          title: titleEl.value,
+          username: usernameEl.value,
+          content: contentEl.value,
+        })
+      ) {
+        alert('모든 항목을 입력해주세요.');
+        return;
+      }
+
+      // 게시글 정보 갱신하기
+      this.posts[id] = {
+        idx: this.postIdx,
+        title: titleEl.value,
+        username: usernameEl.value,
+        content: contentEl.value,
+      };
+
+      // 입력값 활성 상태 true로 변경하기
+      titleEl.disabled = true;
+      usernameEl.disabled = true;
+      contentEl.disabled = true;
+
+      // 게시글 목록 업데이트
+      savePost(this.posts);
+      this.render();
+
+      alert('수정 완료되었습니다.');
+    }
+  };
+
+  /**
+   * 게시글를 삭제하는 deletePost() 함수
+   * @param {Event} e - 이벤트 객체
+   */
+  this.deletePost = (e) => {
+    e.preventDefault();
+
+    if (confirm('정말 삭제하시겠습니뀨?')) {
+      const postIdx = parseInt(
+        document.querySelector('#detail-post-no').getAttribute('data-id')
+      );
+
+      const copiedPosts = [...this.posts];
+
+      const selectedPostIdx = copiedPosts.findIndex(
+        (post) => post.idx === postIdx
+      );
+      copiedPosts.splice(selectedPostIdx, 1);
+
+      savePost(copiedPosts);
+      this.initData();
+    } else {
+      return;
+    }
+  };
+
+  /**
+   * 게시판 관련 이벤트를 초기화하는 initEventListeners() 함수
+   */
+  this.initEventListeners = () => {
+    document.querySelector('#add-btn').addEventListener('click', this.addPost);
+    document
+      .querySelector('#post-list')
+      .addEventListener('click', this.getDetailPost);
+    document
+      .querySelector('#edit-btn')
+      .addEventListener('click', this.updatePost);
+
+    document
+      .querySelector('#delete-btn')
+      .addEventListener('click', this.deletePost);
+  };
+
+  /**
+   * 게시판 폼 입력값 유효성 검사하는 isPostFormValidate() 함수
+   * @param {string} title - 글 제목
+   * @param {string} username - 작성자명
+   * @param {string} content - 글 내용
+   */
+  this.isPostFormValidate = ({ title, username, content }) => {
+    if (
+      title.trim() === '' ||
+      username.trim() === '' ||
+      content.trim() === ''
+    ) {
+      return false;
+    }
+    return true;
+  };
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.3</a> on Thu Jul 18 2024 01:21:27 GMT+0900 (대한민국 표준시) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

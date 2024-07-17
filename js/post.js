@@ -2,7 +2,8 @@ import { savePost, getPostList } from '../api/post.js';
 
 export default function Post() {
   this.posts = [];
-  this.nextId = 0;// 시퀀스번호
+  this.nextId = 0; // 시퀀스번호
+  this.postIdx;
 
   this.init = () => {
     this.initData();
@@ -16,10 +17,10 @@ export default function Post() {
     const usernameEl = document.querySelector('#input-username');
     const contentEl = document.querySelector('#input-content');
 
-    const idx = this.posts.length
+    const idx = this.posts.length;
 
     const data = {
-      idx : nextId++,
+      idx: this.nextId++,
       title: titleEl.value,
       username: usernameEl.value,
       content: contentEl.value,
@@ -55,7 +56,7 @@ export default function Post() {
       return;
     }
     const postEls = this.posts
-      .map(({idx, title, username, content }) => {
+      .map(({ idx, title, username, content }) => {
         return `<li class="list-group-item d-flex justify-content-between align-items-start"  data-id="${idx}">
                   <div class="w-10 fw-bold">${idx}</div>
                   <div class="w-10 fw-bold">${title}</div>
@@ -72,19 +73,21 @@ export default function Post() {
    * 2. 리스트의 내용을 인덱스에 맞는걸 post-detail 요소에 넣어줌
    */
   this.getDetailPost = (event) => {
-    
     const listItem = event.target.closest('.list-group-item');
-    
 
-    const id = parseInt(listItem.getAttribute('data-id'),10);
-    
-    const post = this.posts.find(p => p.idx === id);
-    
+    const id = parseInt(listItem.getAttribute('data-id'), 10);
 
+    const post = this.posts.find((p) => p.idx === id);
+    this.postIdx = this.posts.findIndex((p) => p.idx === id);
+
+    const noEl = document.querySelector('#detail-post-no');
     const titleEl = document.querySelector('#post-title');
     const usernameEl = document.querySelector('#post-username');
     const contentEl = document.querySelector('#post-content');
 
+    noEl.className = 'd-inline';
+    noEl.setAttribute('data-id', id);
+    noEl.innerText = `${this.postIdx}번`;
     titleEl.value = post.title;
     usernameEl.value = post.username;
     contentEl.value = post.content;
@@ -92,16 +95,75 @@ export default function Post() {
     titleEl.disabled = true;
     usernameEl.disabled = true;
     contentEl.disabled = true;
-    
   };
 
+  /**
+   * 게시글 수정
+   * 1. 입력값 활성 상태 변경
+   * 2. 게시글 정보 갱신
+   * 3. 입력값 활성 상태 변경
+   */
+  this.updatePost = (e) => {
+    e.preventDefault();
 
+    const noEl = document.querySelector('#detail-post-no');
+    const titleEl = document.querySelector('#post-title');
+    const usernameEl = document.querySelector('#post-username');
+    const contentEl = document.querySelector('#post-content');
 
+    const id = this.posts.findIndex((p) => p.idx === parseInt(this.postIdx));
+
+    // if(한 번 클릭한 애인지?)
+    // disabled = true : 수정 가능하게 변경
+    // disabled = false : 입력된 값 수정
+    if (titleEl.disabled) {
+      // 입력값 활성 상태 false로 변경하기
+      titleEl.disabled = false;
+      usernameEl.disabled = false;
+      contentEl.disabled = false;
+    } else {
+      //폼 유효성 검사
+      if (
+        !this.isPostFormValidate({
+          title: titleEl.value,
+          username: usernameEl.value,
+          content: contentEl.value,
+        })
+      ) {
+        alert('모든 항목을 입력해주세요.');
+        return;
+      }
+
+      // 게시글 정보 갱신하기
+      this.posts[id] = {
+        idx: this.postIdx,
+        title: titleEl.value,
+        username: usernameEl.value,
+        content: contentEl.value,
+      };
+
+      // 입력값 활성 상태 true로 변경하기
+      titleEl.disabled = true;
+      usernameEl.disabled = true;
+      contentEl.disabled = true;
+
+      // 게시글 목록 업데이트 해줘야함
+      savePost(this.posts);
+      this.render();
+
+      alert('수정 완료되었습니다.');
+    }
+  };
 
   // 게시판 이벤트 초기화
   this.initEventListeners = () => {
     document.querySelector('#add-btn').addEventListener('click', this.addPost);
-    document.querySelector('#post-list').addEventListener('click', this.getDetailPost)
+    document
+      .querySelector('#post-list')
+      .addEventListener('click', this.getDetailPost);
+    document
+      .querySelector('#edit-btn')
+      .addEventListener('click', this.updatePost);
   };
 
   // 유효성 판별

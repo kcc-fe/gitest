@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>utils/store.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,31 +35,38 @@
 
 <div id="main">
     
+    <h1 class="page-title">utils/store.js</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const store = {
+  /**
+   * 로컬 스토리지에 존재하는 데이터를 가져오는 getLocalStorage() 함수
+   * @returns {string} posts - 게시판 데이터
+   */
+  getLocalStorage: () => {
+    return JSON.parse(localStorage.getItem('data'));
+  },
 
+  /**
+   * 로컬 스토리지에 데이터를 저장하는 setLocalStorage() 함수
+   * @param {Object} data - 게시판 데이터
+   */
+  setLocalStorage: (data) => {
+    localStorage.setItem('data', JSON.stringify(data));
+  },
+};
 
-    <section class="package">
-        <h3> </h3>		
+export default store;
+</code></pre>
+        </article>
     </section>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
 
 
 

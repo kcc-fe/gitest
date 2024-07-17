@@ -79,7 +79,6 @@ export default function Post() {
 
     const post = this.posts.find((p) => p.idx === id);
     this.postIdx = this.posts.findIndex((p) => p.idx === id);
-    console.log(this.postIdx);
 
     const noEl = document.querySelector('#detail-post-no');
     const titleEl = document.querySelector('#post-title');
@@ -112,9 +111,7 @@ export default function Post() {
     const usernameEl = document.querySelector('#post-username');
     const contentEl = document.querySelector('#post-content');
 
-    // const postIdx = noEl.getAttribute('data-id');
     const id = this.posts.findIndex((p) => p.idx === parseInt(this.postIdx));
-    console.log('id:' + id);
 
     // if(한 번 클릭한 애인지?)
     // disabled = true : 수정 가능하게 변경
@@ -145,8 +142,6 @@ export default function Post() {
         content: contentEl.value,
       };
 
-      console.log(this.posts[id].idx);
-
       // 입력값 활성 상태 true로 변경하기
       titleEl.disabled = true;
       usernameEl.disabled = true;
@@ -155,7 +150,6 @@ export default function Post() {
       // 게시글 목록 업데이트 해줘야함
       savePost(this.posts);
       this.render();
-      console.log(this.posts[this.postIdx]);
 
       alert('수정 완료되었습니다.');
     }

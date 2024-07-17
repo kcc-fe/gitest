@@ -1,4 +1,4 @@
-import Post from '../js/post.js';
+import Post from './js/post.js';
 
 function App() {
   this.init = () => {

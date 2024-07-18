@@ -214,4 +214,8 @@ export default function Post() {
     }
     return true;
   };
+
+  this.sum = (a, b) => {
+    return a + b;
+  };
 }
